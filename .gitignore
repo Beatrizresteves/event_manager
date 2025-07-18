@@ -1,4 +1,12 @@
-venv/
-*.pyc
 __pycache__/
-db.sqlite3
+*.py[cod]
+*$py.class
+
+venv/
+.env
+
+*.sqlite3
+/staticfiles/
+media/
+
+*.pyc
