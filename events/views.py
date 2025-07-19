@@ -1,7 +1,9 @@
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Event
 from .serializers import EventSerializer
+from event_manager.permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import viewsets
+
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
@@ -10,7 +12,7 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'list':
             return [AllowAny()]
-        return [IsAuthenticated()]
+        return [IsAuthenticated(), IsOwnerOrReadOnly()]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
