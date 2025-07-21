@@ -43,14 +43,15 @@
   html, body, #app {
 	margin: 0;
 	padding: 0;
-	min-height: 100vh; /* <- não use height fixa! */
+	min-height: 100vh;
 	background-color: #121212;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	color: #eee;
   }
   
   #app {
-	display: block; /* Remova qualquer flex desnecessário */
+	display: block; 
 	width: 100%;
   }
+
   </style>
