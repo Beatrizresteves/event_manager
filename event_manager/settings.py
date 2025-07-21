@@ -90,6 +90,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://localhost:5174"
 ]
 
 ROOT_URLCONF = 'event_manager.urls'
@@ -119,11 +120,11 @@ WSGI_APPLICATION = 'event_manager.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'event_manager'),
-        'USER': os.getenv('DB_USER', 'event_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'event_manager'),
-        'HOST': os.environ.get('DATABASE_HOST', 'db'), 
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': 'event_manager',
+        'USER': 'event_user',
+        'PASSWORD': 'event_manager',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 

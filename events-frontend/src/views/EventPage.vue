@@ -1,9 +1,17 @@
-<!-- src/pages/EventsPage.vue -->
 <template>
 	<div class="event-page">
-	  <h1>Gerenciador de Eventos</h1>
-	  <EventForm @evento-criado="atualizarLista" />
-	  <EventList ref="listaEventos" />
+	  <h1 class="page-title">Gerenciador de Eventos</h1>
+  
+	  <div class="event-wrapper">
+		<EventForm
+		  :eventoSelecionado="eventoEditando"
+		  @evento-criado="atualizarLista"
+		/>
+		<EventList
+		  ref="listaEventos"
+		  @editar-evento="eventoEditando = $event"
+		/>
+	  </div>
 	</div>
   </template>
   
@@ -17,19 +25,32 @@
 	  EventForm,
 	  EventList
 	},
+	data() {
+		return {
+			eventoEditando: null
+		}
+	},
 	methods: {
-	  atualizarLista() {
-		this.$refs.listaEventos?.mounted?.()
-	  }
+    	atualizarLista() {
+			this.$refs.listaEventos?.carregarEventos?.()
+			this.eventoEditando = null
+		}
 	}
   }
   </script>
   
-  <style scoped>
-  .event-page {
-	max-width: 800px;
-	margin: 0 auto;
-	padding: 2rem;
+  <style>
+  html, body, #app {
+	margin: 0;
+	padding: 0;
+	min-height: 100vh; /* <- não use height fixa! */
+	background-color: #121212;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	color: #eee;
+  }
+  
+  #app {
+	display: block; /* Remova qualquer flex desnecessário */
+	width: 100%;
   }
   </style>
-  

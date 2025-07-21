@@ -1,28 +1,56 @@
-<!-- src/components/EventForm.vue -->
 <template>
-	<form @submit.prevent="enviarEvento" class="event-form">
-	  <h2>Criar Novo Evento</h2>
+	<div class="container">
+	  <form @submit.prevent="enviarEvento" class="event-form">
+		<h2 class="title">Criar Novo Evento</h2>
   
-	  <div class="form-group">
-		<label for="nome">Nome:</label>
-		<input id="nome" v-model="evento.nome" required placeholder="Digite o nome do evento" />
-	  </div>
+		<div class="form-group">
+		  <label for="title">Nome:</label>
+		  <input
+			id="title"
+			v-model="evento.title"
+			required
+			placeholder="Digite o nome do evento"
+		  />
+		</div>
   
-	  <div class="form-group">
-		<label for="data">Data:</label>
-		<input id="data" v-model="evento.data" type="date" required />
-	  </div>
+		<div class="form-group">
+		  <label for="date">Data:</label>
+		  <input
+			id="date"
+			v-model="evento.date"
+			type="date"
+			required
+		  />
+		</div>
   
-	  <div class="form-group">
-		<label for="local">Local:</label>
-		<input id="local" v-model="evento.local" required placeholder="Digite o local do evento" />
-	  </div>
+		<div class="form-group">
+		  <label for="time">Hora:</label>
+		  <input
+			id="time"
+			v-model="evento.time"
+			type="time"
+			required
+		  />
+		</div>
   
-	  <button type="submit" class="btn-submit">Salvar</button>
+		<div class="form-group">
+		  <label for="location">Local:</label>
+		  <input
+			id="location"
+			v-model="evento.location"
+			required
+			placeholder="Digite o local do evento"
+		  />
+		</div>
   
-	  <p v-if="mensagem" class="mensagem-sucesso">{{ mensagem }}</p>
-	  <p v-if="erro" class="mensagem-erro">Erro: {{ erro }}</p>
-	</form>
+		<button type="submit" :disabled="loading">
+		  {{ loading ? 'Salvando...' : 'Salvar' }}
+		</button>
+  
+		<p v-if="mensagem" class="mensagem-sucesso">{{ mensagem }}</p>
+		<p v-if="erro" class="mensagem-erro">Erro: {{ erro }}</p>
+	  </form>
+	</div>
   </template>
   
   <script>
@@ -31,113 +59,175 @@
   export default {
 	name: 'EventForm',
 	data() {
-	  return {
+		return {
 		evento: {
-		  nome: '',
-		  data: '',
-		  local: ''
+			title: '',
+			date: '',
+			time: '',
+			location: ''
 		},
 		mensagem: '',
-		erro: ''
-	  }
-	},
-	methods: {
-	  async enviarEvento() {
-		try {
-			console.log(this.tokenUsuario)
-		  const resposta = await axios.post('http://localhost:8000/api/events/', this.evento, {
-			headers: {
-				Authorization: `Token ${this.tokenUsuario}`
-			}
-			})
-		  this.mensagem = 'Evento criado com sucesso!'
-		  this.erro = ''
-		  this.evento = { nome: '', data: '', local: '' }
-		  this.$emit('evento-criado') // se quiser atualizar a lista
-		} catch (error) {
-		  this.erro = error.response?.data?.detail || 'Erro ao criar evento'
-		  this.mensagem = ''
+		erro: '',
+		loading: false,
+		token: localStorage.getItem('access_token') || ''
 		}
-	  }
+	},
+	watch: {
+		eventoSelecionado: {
+			immediate: true,
+			handler(novoEvento) {
+				if (novoEvento) {
+					this.evento = {
+					id: novoEvento.id,
+					title: novoEvento.title,
+					date: novoEvento.date,
+					time: novoEvento.time || '',       
+					location: novoEvento.location
+					}
+				} else {
+					this.resetarFormulario()
+				}
+			}
+		}
+	},
+	props: {
+		eventoSelecionado: {
+			type: Object,
+			default: null
+		}
+		},
+	methods: {
+		async enviarEvento() {
+			this.loading = true
+			this.mensagem = ''
+			this.erro = ''
+			try {
+				const url = this.evento.id
+				? `http://localhost:8000/api/events/events/${this.evento.id}/`
+				: 'http://localhost:8000/api/events/events/'
+				const metodo = this.evento.id ? 'put' : 'post'
+
+				await axios({
+				method: metodo,
+				url,
+				data: this.evento,
+				headers: { Authorization: `Bearer ${this.token}` }
+				})
+
+				this.mensagem = this.evento.id ? 'Evento atualizado!' : 'Evento criado!'
+				this.evento = { title: '', date: '', time: '', location: '' }
+				this.$emit('evento-criado')
+			} catch (error) {
+				this.erro = 'Erro ao salvar evento'
+			} finally {
+				this.loading = false
+			}
+		},
+		async resetarFormulario() {
+			this.evento = {
+				id: novoEvento.id,
+				nome: novoEvento.title,   
+				data: novoEvento.date,     
+				local: novoEvento.location 
+				}
+		}
 	}
   }
   </script>
-  
   <style scoped>
-  .event-form {
-	max-width: 400px;
-	margin: 1rem auto;
-	background: #fff;
-	border-radius: 8px;
-	padding: 20px 25px;
-	box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+  .container {
+	background: #1e1e1e;
+	padding: 2rem;
+	border-radius: 12px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+	max-width: 800px;
+	margin: 2rem auto;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	color: #eee;
   }
   
-  .event-form h2 {
+  .title {
+	font-size: 1.75rem;
+	font-weight: 800;
 	text-align: center;
-	color: #333;
-	margin-bottom: 20px;
-	font-weight: 600;
+	margin-bottom: 1.5rem;
+	color: #fff;
+	text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+  }
+  
+  .event-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
   }
   
   .form-group {
-	margin-bottom: 15px;
 	display: flex;
 	flex-direction: column;
   }
   
   .form-group label {
-	margin-bottom: 6px;
 	font-weight: 500;
-	color: #555;
+	margin-bottom: 0.4rem;
+	color: #bbb;
   }
   
-  .form-group input[type="text"],
-  .form-group input[type="date"] {
-	padding: 10px 12px;
-	border: 1.8px solid #ccc;
-	border-radius: 6px;
+  input {
+	padding: 0.75rem 1rem;
 	font-size: 1rem;
-	transition: border-color 0.3s ease;
+	border: 2px solid #333;
+	border-radius: 8px;
+	background-color: #2a2a2a;
+	color: #eee;
+	transition: border-color 0.3s, box-shadow 0.3s;
   }
   
-  .form-group input[type="text"]:focus,
-  .form-group input[type="date"]:focus {
+  input:focus {
 	outline: none;
-	border-color: #3b82f6; /* azul suave */
-	box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+	border-color: #4caf50;
+	box-shadow: 0 0 6px #4caf50aa;
   }
   
-  .btn-submit {
-	width: 100%;
-	padding: 12px 0;
-	background-color: #3b82f6;
+  input::placeholder {
+	color: #999;
+  }
+  
+  button {
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
 	border: none;
+	border-radius: 8px;
+	background: linear-gradient(90deg, #4caf50, #388e3c);
 	color: white;
-	font-weight: 600;
-	font-size: 1.1rem;
-	border-radius: 6px;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
+	font-weight: 600;
+	transition: background 0.3s, box-shadow 0.3s;
   }
   
-  .btn-submit:hover {
-	background-color: #2563eb;
+  button:hover:not(:disabled) {
+	background: linear-gradient(90deg, #66bb6a, #2e7d32);
+	box-shadow: 0 4px 12px #66bb6aaa;
+  }
+  
+  button:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+	background: #555;
+	box-shadow: none;
   }
   
   .mensagem-sucesso {
-	margin-top: 15px;
-	color: #16a34a; /* verde */
+	color: #16a34a;
 	font-weight: 600;
 	text-align: center;
+	font-size: 0.95rem;
   }
   
   .mensagem-erro {
-	margin-top: 15px;
-	color: #dc2626; /* vermelho */
+	color: #dc2626;
 	font-weight: 600;
 	text-align: center;
+	font-size: 0.95rem;
   }
   </style>
   
