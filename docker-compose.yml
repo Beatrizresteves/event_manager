@@ -12,8 +12,24 @@ services:
     ports:
       - "5432:5432"
 
+  frontend:
+    build:
+      context: ./events-frontend      
+      dockerfile: Dockerfile
+    command: npm run dev
+    ports:
+      - "5173:5173"
+    depends_on:
+      - web
+    volumes:
+      - ./events-frontend:/app
+    networks:
+      - default
+
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -25,8 +41,10 @@ services:
       - DATABASE_NAME=event_manager
       - DATABASE_USER=event_user
       - DATABASE_PASSWORD=event_manager
-      - DATABASE_HOST=db        
+      - DATABASE_HOST=db
       - DATABASE_PORT=5432
+    networks:
+      - default
 
 volumes:
   postgres_data:

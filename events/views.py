@@ -10,9 +10,9 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.request.method == 'GET' and self.action == 'list':
             return [AllowAny()]
         return [IsAuthenticated(), IsOwnerOrReadOnly()]
-
+    
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
