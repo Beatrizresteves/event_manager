@@ -1,9 +1,21 @@
 <template>
   <div id="app">
-    <EventList />
+    <router-view />
   </div>
 </template>
 
-<script setup>
-import EventList from './components/EventList.vue'
+<script>
+export default {
+  name: 'App',
+};
 </script>
+
+<style>
+/* Estilos globais, se necessário */
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 20px;
+}
+</style>

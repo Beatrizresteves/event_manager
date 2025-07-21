@@ -34,9 +34,10 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
-	'drf_spectacular',
-    'drf_spectacular_sidecar',
-	'corsheaders'
+	"drf_spectacular",
+    "drf_spectacular_sidecar",
+	"corsheaders",
+	"rest_framework.authtoken",
 ]
 
 LOCAL_APPS = [
@@ -60,6 +61,7 @@ REST_FRAMEWORK = {
 	'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 	    'DEFAULT_PERMISSION_CLASSES': (
             'rest_framework.permissions.AllowAny',
