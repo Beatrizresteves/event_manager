@@ -123,13 +123,13 @@
 				this.loading = false
 			}
 		},
-		async resetarFormulario() {
+		resetarFormulario() {
 			this.evento = {
-				id: novoEvento.id,
-				nome: novoEvento.title,   
-				data: novoEvento.date,     
-				local: novoEvento.location 
-				}
+				title: '',
+				date: '',
+				time: '',
+				location: ''
+			}
 		}
 	}
   }
