@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event,Participant
+from .models import Event, Participant
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,7 +10,8 @@ class EventSerializer(serializers.ModelSerializer):
         }
 
 class ParticipantSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username') 
+
     class Meta:
         model = Participant
-        fields = ['id', 'user', 'event', 'registered_at']
-        read_only_fields = ['user', 'registered_at']
+        fields = ['id', 'event', 'user', 'registered_at']
