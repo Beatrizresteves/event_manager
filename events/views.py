@@ -35,16 +35,14 @@ class ParticipantViewSet(viewsets.ModelViewSet):
         if Participant.objects.filter(user=user, event=event).exists():
             raise ValidationError("Você já está inscrito neste evento.")
 
-        participant = serializer.save(user=user)
-
+        serializer.save(user=user)
         enviar_email_inscricao_confirmada.delay(user.email, event.title)
 
     def get_queryset(self):
-        event_id = self.request.query_params.get('event')
-        if event_id:
-            return Participant.objects.filter(event__id=event_id)
-        return Participant.objects.all()
-    
+        user = self.request.user
+        if user.is_authenticated:
+            return Participant.objects.filter(user=user)
+        return Participant.objects.none()
 class EventReportListView(generics.ListAPIView):
     queryset = Event.objects.prefetch_related('participants__user')
     serializer_class = EventReportSerializer
@@ -52,7 +50,7 @@ class EventReportListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Event.objects.prefetch_related('participants__user')
-        print('EVENTOS:', list(queryset))  # forçar avaliação do queryset
+        print('EVENTOS:', list(queryset))  
         return queryset
     
 class EventReportView(generics.ListAPIView):

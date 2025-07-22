@@ -17,9 +17,14 @@
 		  <div class="buttons">
 			<button @click="editarEvento(event)">✏️</button>
 			<button @click="excluirEvento(event.id)">🗑️</button>
-			<button @click="participar(event)" :disabled="loadingInscricao[event.id]">
-			  {{ loadingInscricao[event.id] ? 'Inscrevendo...' : 'Participar' }}
+			<button
+				v-if="!inscritosEventos.has(event.id)"
+				@click="participar(event)"
+				:disabled="loadingInscricao[event.id]"
+				>
+				{{ loadingInscricao[event.id] ? 'Inscrevendo...' : 'Participar' }}
 			</button>
+			<span v-else class="inscrito-label">✔️ Inscrito</span>
 		  </div>
 		</li>
 	  </ul>
@@ -31,14 +36,15 @@
   <script setup>
   import { ref, onMounted, defineEmits, defineExpose } from 'vue'
   import axios from 'axios'
-  
+
   const emit = defineEmits(['editar-evento'])
   
   const events = ref([])
   const loading = ref(false)
   const error = ref(null)
   const loadingInscricao = ref({})
-  
+  const inscritosEventos = ref(new Set()) 
+
   function formatDate(dateStr) {
 	const date = new Date(dateStr)
 	return date.toLocaleDateString('pt-BR', {
@@ -52,15 +58,28 @@
 	loading.value = true
 	error.value = null
 	try {
-	  const res = await axios.get('http://localhost:8000/api/events/events/')
-	  events.value = res.data.results || res.data
+		const res = await axios.get('http://localhost:8000/api/events/events/')
+		events.value = res.data.results || res.data
+		await carregarEventosInscritos()
 	} catch (err) {
-	  error.value = 'Erro ao buscar eventos.'
+		error.value = 'Erro ao buscar eventos.'
 	} finally {
-	  loading.value = false
+		loading.value = false
 	}
-  }
-  
+	}
+	async function carregarEventosInscritos() {
+		const token = localStorage.getItem('access_token')
+		if (!token) return 
+
+		try {
+			const res = await axios.get('http://localhost:8000/api/events/participants/', {
+			headers: { Authorization: `Bearer ${token}` }
+			})
+			inscritosEventos.value = new Set(res.data.map(inscricao => inscricao.event))
+		} catch (err) {
+			console.error('Erro ao buscar inscrições:', err)
+		}
+	}
   async function excluirEvento(id) {
 	if (!confirm('Tem certeza que deseja excluir este evento?')) return
   
@@ -86,32 +105,35 @@
   async function participar(event) {
 	loadingInscricao.value[event.id] = true
 	try {
-	  const token = localStorage.getItem('access_token')
-	  if (!token) {
+		const token = localStorage.getItem('access_token')
+		if (!token) {
 		alert('Você precisa estar logado para se inscrever.')
 		loadingInscricao.value[event.id] = false
 		return
-	  }
-  
-	  await axios.post(
+		}
+
+		await axios.post(
 		'http://localhost:8000/api/events/participants/',
 		{ event: event.id },
 		{
-		  headers: { Authorization: `Bearer ${token}` },
+			headers: { Authorization: `Bearer ${token}` },
 		}
-	  )
-	  alert(`Inscrição no evento "${event.title}" realizada com sucesso!`)
+		)
+		alert(`Inscrição no evento "${event.title}" realizada com sucesso!`)
+		
+		// Atualiza a lista de inscritos localmente
+		inscritosEventos.value.add(event.id)
+
 	} catch (err) {
-	  if (err.response?.data?.non_field_errors) {
+		if (err.response?.data?.non_field_errors) {
 		alert(err.response.data.non_field_errors.join('\n'))
-	  } else {
+		} else {
 		alert('Erro ao inscrever no evento.')
-	  }
+		}
 	} finally {
-	  loadingInscricao.value[event.id] = false
+		loadingInscricao.value[event.id] = false
 	}
-  }
-  
+	}
   defineExpose({ carregarEventos })
   
   onMounted(carregarEventos)
@@ -206,5 +228,12 @@
 	cursor: pointer;
 	font-size: 1.1rem;
   }
+
+.inscrito-label {
+  color: #22c55e; 
+  font-weight: 600;
+  user-select: none;
+}
+
   </style>
   

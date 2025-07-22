@@ -123,25 +123,8 @@ PUT /api/events/{id}/
 
 DELETE /api/events/{id}/
 
-Inscrições
 
-GET /api/registrations/
 
-POST /api/registrations/
-
-etc.
-
-Notificações
-
-GET /api/notifications/
-
-POST /api/notifications/
-
-etc.
-
-Relatórios
-
-GET /api/reports/events/ → retorna lista de eventos com total de inscritos
 
 🐳 Docker (opcional)
 Se preferir usar Docker, crie um docker-compose.yml com serviços para:

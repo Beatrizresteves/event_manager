@@ -42,9 +42,9 @@ class ParticipantUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
         
 class ParticipantSerializer(serializers.ModelSerializer):
-    user = ParticipantUserSerializer()
+    user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Participant
-        fields = ['user', 'registered_at']
+        fields = ['id', 'user', 'event', 'registered_at']
 
