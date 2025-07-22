@@ -35,9 +35,15 @@ class EventSerializer(serializers.ModelSerializer):
             'created_by': {'read_only': True},  
         }
 
+class ParticipantUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+        
 class ParticipantSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username') 
+    user = ParticipantUserSerializer()
 
     class Meta:
         model = Participant
-        fields = ['id', 'event', 'user', 'registered_at']
+        fields = ['user', 'registered_at']
+

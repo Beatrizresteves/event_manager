@@ -46,7 +46,24 @@ class ParticipantViewSet(viewsets.ModelViewSet):
         return Participant.objects.all()
     
 class EventReportListView(generics.ListAPIView):
-    queryset = Event.objects.prefetch_related(
-        'participants__user'
-    )
+    queryset = Event.objects.prefetch_related('participants__user')
     serializer_class = EventReportSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        queryset = Event.objects.prefetch_related('participants__user')
+        print('EVENTOS:', list(queryset))  # forçar avaliação do queryset
+        return queryset
+    
+class EventReportView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EventReportSerializer
+
+    def get_queryset(self):
+        print("ENTROU NO GET_QUERYSET")
+        user = self.request.user
+        print("USUÁRIO:", user)
+
+        queryset = Event.objects.filter(participants__user=user).distinct()
+        print("QUERYSET:", queryset)
+        return queryset

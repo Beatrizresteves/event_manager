@@ -10,6 +10,6 @@ class EventReportView(APIView):
 
     def get(self, request):
         data = Event.objects.annotate(
-            total_registrations=Count('registrations')
-        ).values('id', 'name', 'total_registrations')
+            total_participants=Count('participants')
+        ).values('id', 'title', 'total_participants')
         return Response(data)

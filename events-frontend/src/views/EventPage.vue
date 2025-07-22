@@ -1,48 +1,58 @@
 <template>
-	<div class="event-page">
-	  <h1 class="page-title">Gerenciador de Eventos</h1>
-  
-	  <div class="event-wrapper">
-		<div v-if="!showForm" class="event-list-section">
-		  <EventList
+	<!-- Lista de eventos -->
+	<div v-if="!showForm && !mostrarRelatorio" class="event-list-section">
+		<EventList
 			ref="listaEventos"
 			@editar-evento="abrirFormulario($event)"
-		  />
-		  <button class="add-event-btn" @click="abrirFormulario(null)">+ Criar Evento</button>
+		/>
+		<!-- Botões de ação -->
+		<div class="buttons-row">
+			<button class="add-event-btn" @click="abrirFormulario(null)">+ Criar Evento</button>
+			<button class="add-event-btn" @click="abrirRelatorio">📊 Ver Relatório</button>
 		</div>
-  
-		<div v-else class="event-form-section">
-		  <EventForm
+	</div>
+
+	<!-- Formulário de evento -->
+	<div v-else-if="showForm" class="event-form-section">
+		<EventForm
 			:eventoSelecionado="eventoEditando"
 			@evento-criado="eventoSalvo"
 			@cancelar="fecharFormulario"
 			@voltar="fecharFormulario"
-			/>
-		</div>
-	  </div>
+		/>
 	</div>
-  </template>
-  
+
+	<!-- Relatório -->
+	<div v-else-if="mostrarRelatorio" class="event-report-section">
+		<EventReport />
+		<button class="add-event-btn" @click="fecharRelatorio">⬅ Voltar</button>
+	</div>
+</template>
+
   <script>
   import EventForm from '../components/EventForm.vue'
   import EventList from '../components/EventList.vue'
-  
+  import EventReport from '../components/EventReport.vue' 
+
   export default {
 	name: 'EventsPage',
 	components: {
 	  EventForm,
-	  EventList
+	  EventList,
+	  EventReport
 	},
 	data() {
 	  return {
 		eventoEditando: null,
 		showForm: false,
+		mostrarRelatorio: false
 	  }
 	},
 	methods: {
 	  abrirFormulario(evento) {
 		this.eventoEditando = evento;
 		this.showForm = true;
+		this.mostrarRelatorio = false;
 	  },
 	  fecharFormulario() {
 		this.eventoEditando = null;
@@ -51,6 +61,13 @@
 	  eventoSalvo() {
 		this.$refs.listaEventos?.carregarEventos?.()
 		this.fecharFormulario();
+	  },
+	  abrirRelatorio() {
+		this.showForm = false;
+		this.mostrarRelatorio = true;
+	  },
+	  fecharRelatorio() {
+		this.mostrarRelatorio = false;
 	  }
 	}
   }
@@ -92,5 +109,10 @@
   background-color: #388e3c;
 }
 
+.buttons-row {
+	display: flex;
+	gap: 1rem;
+	margin-top: 1rem;
+}
 
   </style>

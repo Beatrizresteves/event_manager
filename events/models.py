@@ -17,6 +17,7 @@ class Participant(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='participants')
     registered_at = models.DateTimeField(auto_now_add=True)
+    event = models.ForeignKey(Event, related_name='participants', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('user', 'event')
