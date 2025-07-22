@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Event, Participant
+from datetime import date
 
 User = get_user_model()
 
@@ -30,9 +31,9 @@ class EventReportSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'date', 'time', 'location'] 
+        fields = ['id', 'title', 'description', 'date', 'time', 'location', 'created_by']
         extra_kwargs = {
-            'created_by': {'read_only': True},  
+            'created_by': {'read_only': True},
         }
 
 class ParticipantUserSerializer(serializers.ModelSerializer):

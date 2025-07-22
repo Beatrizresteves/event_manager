@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from events.models import Event
 from django.urls import reverse
+from datetime import date, time
 
 
 User = get_user_model()
@@ -87,3 +88,57 @@ class EventPermissionTests(APITestCase):
         }
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_event_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('event-detail', args=[self.event.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_event_owner(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('event-detail', args=[self.event.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_create_event_invalid_data(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('event-list')
+        data = {
+            'title': '',  # título obrigatório vazio
+            'date': 'invalid-date',  # formato inválido
+            # faltando outros campos obrigatórios
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('title', response.data)
+        self.assertIn('date', response.data)
+
+    def test_retrieve_event_detail(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('event-detail', args=[self.event.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_partial_update_event_owner(self):
+        self.client.force_authenticate(user=self.user1)
+        url = reverse('event-detail', args=[self.event.id])
+        data = {'title': 'Título atualizado parcialmente'}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], data['title'])
+
+    def test_created_by_field_set_automatically(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('event-list')
+        data = {
+            'title': 'Evento Novo',
+            'description': 'Descrição',
+            'location': 'Local',
+            'date': '2025-07-22',
+            'time': '10:00:00',
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Verifica se o created_by foi setado como user2 automaticamente
+        self.assertEqual(response.data['created_by'], self.user2.id)
