@@ -21,12 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6p2s%-en$&r-n76^b^rfnzwsx*3%b=ts=fn(=civu+17a70k=9'
+SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-insegura")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+dotenv.load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Application definition
@@ -118,14 +121,13 @@ WSGI_APPLICATION = 'event_manager.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'event_manager',
-        'USER': 'event_user',
-        'PASSWORD': 'event_manager',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'event_manager'),
+        'USER': os.getenv('DB_USER', 'event_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'event_manager'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -151,7 +153,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-BR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -181,9 +183,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'beatrizramalho.esteves@gmail.com'
-EMAIL_HOST_PASSWORD = 'ET@4UxxvDQZ!JRL'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'  
 CELERY_ACCEPT_CONTENT = ['json']

@@ -1,159 +1,175 @@
-# Event Manager API
 
-Sistema de gerenciamento de eventos com Django REST Framework.
+# Event Manager API + Frontend
 
-## ⚙️ Tecnologias
-
-- Python 3.8+
-- Django 4.2.x
-- Django REST Framework
-- djangorestframework-simplejwt
-- PostgreSQL
-- Celery + Redis (tarefas assíncronas)
-- Docker / Docker Compose (opcional)
+Sistema de gerenciamento de eventos com backend em Django REST Framework e frontend em Vue 3.
 
 ---
 
-## 🚀 Como rodar localmente
+## Tecnologias utilizadas
 
-1. **Clone o repositório**  
-   ```bash
-   git clone git@github.com:SeuUsuario/event_manager.git
-   cd event_manager
-Crie e ative o ambiente virtual
+- Python 3.8+
+- Django 4.2
+- Django REST Framework
+- djangorestframework-simplejwt (JWT Authentication)
+- PostgreSQL
+- Celery + Redis (para tarefas assíncronas)
+- Vue 3 + Vite + Vuetify
+- Axios
+- Docker / Docker Compose 
 
-   ```bash
+---
+
+## Rodando o projeto localmente
+
+### Backend
+
+1. Clone o repositório
+
+```bash
+git clone https://github.com/Beatrizresteves/event_manager/
+```
+
+2. Crie e ative o ambiente virtual
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
-   ```
+```
 
-Instale as dependências
-  
-   ```bash
-pip install -r requirements.txt
-   ```
+3. Crie arquivo `.env` na raiz do projeto com as variáveis:
 
-Configure variáveis de ambiente
-Crie um arquivo .env na raiz, baseado em .env.example:
-   
-   ```bash
-DB_NAME=event_manager
-DB_USER=event_user
-DB_PASSWORD=sua_senha
-DB_HOST=localhost
-DB_PORT=5432
+```env
+POSTGRES_DB=eventdb
+POSTGRES_USER=usuario
+POSTGRES_PASSWORD=senha123
 DJANGO_SECRET_KEY=sua_chave_secreta
-   ```
-Prepare o banco de dados
+EMAIL_HOST=sandbox.smtp.mailtrap.io
+EMAIL_PORT=2525
+EMAIL_HOST_USER=seu_usuario_mailtrap
+EMAIL_HOST_PASSWORD=sua_senha_mailtrap
+YOUTUBE_API_KEY=sua_chave_youtube
+```
 
-   ```bash
-sudo -u postgres psql
+4. Suba os containers com Docker Compose:  
+```bash
+docker-compose up --build
+```
+
+5. A aplicação estará disponível em:  
+```
+http://localhost:8000
+```
+
+6. Prepare o banco de dados PostgreSQL
+
+No terminal do postgres:
+
+```sql
 CREATE DATABASE event_manager;
 CREATE USER event_user WITH PASSWORD 'sua_senha';
 GRANT ALL PRIVILEGES ON DATABASE event_manager TO event_user;
-\q
-   ```
+```
 
-Aplique as migrações
+7. Aplique as migrações
 
-bash
-Copiar código
-python manage.py migrate
-Crie o superusuário
+```bash
+docker-compose exec web python manage.py migrate
+```
 
-   ```bash
-python manage.py createsuperuser
-   ```
+8. Crie um superusuário
 
-Rode o servidor de desenvolvimento
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
 
-   ```bash
-python manage.py runserver
-   ```
+---
 
-Acesse em: http://127.0.0.1:8000/
+### Frontend
 
-🔑 Endpoints de Autenticação JWT
-POST /api/token/
-Obter Access e Refresh tokens
-Body JSON:
+1. No diretório do frontend:
 
-json
-Copiar código
-{
-  "username": "seu_usuario",
-  "password": "sua_senha"
-}
-POST /api/token/refresh/
-Renovar Access token
-Body JSON:
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
 
-json
-Copiar código
-{
-  "refresh": "seu_refresh_token"
-}
-Em todas as outras requisições autenticadas, envie no header:
-
-makefile
-Copiar código
-Authorization: Bearer <access_token>
-📚 Principais Endpoints da API
-Usuários
-
-GET /api/users/
-
-POST /api/users/ (registro público)
-
-GET /api/users/{id}/
-
-PUT /api/users/{id}/
-
-DELETE /api/users/{id}/
-
-Eventos
-
-GET /api/events/
-
-POST /api/events/
-
-GET /api/events/{id}/
-
-PUT /api/events/{id}/
-
-DELETE /api/events/{id}/
+O frontend estará disponível em: `http://localhost:5173`
 
 
+## Autenticação JWT
 
+- Login:  
+  `POST /api/token/`  
+  Body JSON:  
+  ```json
+  {
+    "username": "seu_usuario",
+    "password": "sua_senha"
+  }
+  ```
 
-🐳 Docker (opcional)
-Se preferir usar Docker, crie um docker-compose.yml com serviços para:
+- Refresh token:  
+  `POST /api/token/refresh/`  
+  Body JSON:  
+  ```json
+  {
+    "refresh": "seu_refresh_token"
+  }
+  ```
 
-web (Django)
+- Em todas as requisições autenticadas, envie no header:  
+  ```
+  Authorization: Bearer <access_token>
+  ```
 
-db (Postgres)
+---
 
-redis (broker Celery)
+## Endpoints principais da API
 
-worker (Celery)
+### Usuários
 
-E rode:
+- `GET /api/users/`  
+- `POST /api/users/` (registro público)  
+- `GET /api/users/{id}/`  
+- `PUT /api/users/{id}/`  
+- `DELETE /api/users/{id}/`
 
-   ```bash
-docker-compose up --build
-   ```
+### Eventos
 
+- `GET /api/events/` (listar eventos públicos)  
+- `POST /api/events/` (criar evento — autenticado)  
+- `GET /api/events/{id}/`  
+- `PUT /api/events/{id}/`  
+- `DELETE /api/events/{id}/`
 
-🧪 Testes
-Para rodar a suíte de testes:
+### Participantes / Inscrições
 
-   ```bash
+- `POST /api/events/participants/` (inscrever usuário autenticado no evento)  
+- `GET /api/events/participants/me/` (listar inscrições do usuário autenticado)
+
+---
+
+## Testes
+
+Para rodar os testes backend:
+
+```bash
 python manage.py test
-   ```
+```
 
-Verifique cobertura para models, views, serializers e tasks.
+Ou via Docker:
 
-📖 Documentação da API
-Você pode usar o DRF Spectacular ou drf-yasg para gerar documentação interativa Swagger/Redoc.
+```bash
+docker-compose exec web pytest
+```
 
-Pronto! Com isso você tem um README completo, instrutivo e pronto para orientar qualquer pessoa a instalar, testar e usar sua aplicação.
+---
+
+## Frontend — funcionalidades
+
+- Cadastro e login de usuários  
+- Listar eventos disponíveis  
+- Criar, editar e excluir eventos (usuário autenticado)  
+- Inscrição em eventos  
+- Visualizar eventos em que o usuário está inscrito  
