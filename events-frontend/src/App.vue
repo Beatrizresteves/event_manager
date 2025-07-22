@@ -144,4 +144,12 @@ button:disabled {
   white-space: nowrap;
   margin-left: 1rem;
 }
+
+.event-description {
+  font-size: 0.9rem;
+  color: #555;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
 </style>

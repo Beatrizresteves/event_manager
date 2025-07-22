@@ -1,11 +1,11 @@
 from .models import Event, Participant
-from .serializers import EventSerializer, ParticipantSerializer
+from .serializers import EventSerializer, ParticipantSerializer, EventReportSerializer
 from event_manager.permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import viewsets, permissions, filters
 from rest_framework.exceptions import ValidationError
 from .tasks import enviar_email_inscricao_confirmada
-
+from rest_framework import generics
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
@@ -37,7 +37,6 @@ class ParticipantViewSet(viewsets.ModelViewSet):
 
         participant = serializer.save(user=user)
 
-        # Chama a task assíncrona para enviar e-mail de confirmação
         enviar_email_inscricao_confirmada.delay(user.email, event.title)
 
     def get_queryset(self):
@@ -45,3 +44,9 @@ class ParticipantViewSet(viewsets.ModelViewSet):
         if event_id:
             return Participant.objects.filter(event__id=event_id)
         return Participant.objects.all()
+    
+class EventReportListView(generics.ListAPIView):
+    queryset = Event.objects.prefetch_related(
+        'participants__user'
+    )
+    serializer_class = EventReportSerializer

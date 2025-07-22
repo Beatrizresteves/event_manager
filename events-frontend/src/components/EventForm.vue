@@ -1,5 +1,7 @@
 <template>
 	<div class="container">
+	  <button class="btn-voltar" @click="$emit('voltar')">← Voltar</button>
+
 	  <form @submit.prevent="enviarEvento" class="event-form">
 		<h2 class="title">Criar Novo Evento</h2>
   
@@ -42,7 +44,17 @@
 			placeholder="Digite o local do evento"
 		  />
 		</div>
-  
+
+		<div class="form-group">
+			<label for="description">Descrição:</label>
+			<textarea
+				id="description"
+				v-model="evento.description"
+				placeholder="Digite a descrição do evento"
+				rows="4"
+			></textarea>
+			</div>
+			
 		<button type="submit" :disabled="loading">
 		  {{ loading ? 'Salvando...' : 'Salvar' }}
 		</button>
@@ -82,7 +94,8 @@
 					title: novoEvento.title,
 					date: novoEvento.date,
 					time: novoEvento.time || '',       
-					location: novoEvento.location
+					location: novoEvento.location,
+					description: novoEvento.description || ''
 					}
 				} else {
 					this.resetarFormulario()
@@ -128,14 +141,16 @@
 				title: '',
 				date: '',
 				time: '',
-				location: ''
+				location: '',
+				description: ''
+
 			}
 		}
 	}
   }
   </script>
   <style scoped>
-  .container {
+.container {
 	background: #1e1e1e;
 	padding: 2rem;
 	border-radius: 12px;
@@ -146,7 +161,7 @@
 	color: #eee;
   }
   
-  .title {
+.title {
 	font-size: 1.75rem;
 	font-weight: 800;
 	text-align: center;
@@ -154,6 +169,22 @@
 	color: #fff;
 	text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
   }
+
+.btn-voltar {
+  background: transparent;
+  border: none;
+  color: #4caf50;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0;
+  transition: color 0.3s;
+}
+
+.btn-voltar:hover {
+  color: #66bb6a;
+}
   
   .event-form {
 	display: flex;
@@ -191,6 +222,17 @@
   input::placeholder {
 	color: #999;
   }
+
+textarea {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background-color: #2a2a2a; 
+  color: #eee;
+  resize: vertical; 
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
   
   button {
 	padding: 0.75rem 1rem;

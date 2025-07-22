@@ -7,12 +7,13 @@
   
 	  <ul v-if="!loading && events.length" class="event-list">
 		<li v-for="event in events" :key="event.id" class="event-item">
-		  <div>
-			<strong class="event-title">{{ event.title }}</strong>
-			<time class="event-date" :datetime="event.date">
-			  {{ formatDate(event.date) }}
-			</time>
-		  </div>
+			<div>
+			  <strong class="event-title">{{ event.title }}</strong>
+			  <p class="event-description">{{ event.description }}</p>
+			  <time class="event-date" :datetime="event.date">
+				{{ formatDate(event.date) }}
+		      </time>
+			</div>
 		  <div class="buttons">
 			<button @click="editarEvento(event)">✏️</button>
 			<button @click="excluirEvento(event.id)">🗑️</button>
@@ -117,7 +118,6 @@
   </script>
   
   <style scoped>
-  /* seu CSS permanece igual */
   .container {
 	background: #1e1e1e;
 	padding: 2rem;
@@ -190,11 +190,11 @@
   }
   
   .no-events {
-	text-align: center;
-	font-style: italic;
-	color: #aaa;
-  }
-  
+  text-align: center; 
+  font-style: italic;
+  color: #aaa;
+}
+
   .buttons {
 	display: flex;
 	gap: 0.5rem;
